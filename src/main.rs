@@ -4,10 +4,6 @@ mod repositories;
 mod rocket_routes;
 mod schema;
 
-#[derive(Database)]
-#[database("postgres")]
-struct DbConn(rocket_db_pools::diesel::PgPool);
-
 #[rocket::main]
 async fn main() {
     let _ = rocket::build()
@@ -31,7 +27,7 @@ async fn main() {
                 rocket_routes::index::get_hello,
             ],
         )
-        .attach(DbConn::init())
+        .attach(rocket_routes::DbConn::init())
         .launch()
         .await;
 }
