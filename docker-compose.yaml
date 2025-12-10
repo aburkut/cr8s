@@ -8,6 +8,10 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=app_db
     command: ["postgres", "-c", "log_statement=all"]
+    ports:
+      - "5445:5432"
+    expose:
+      - 5432
 
   redis:
     image: redis:latest
@@ -16,7 +20,10 @@ services:
     build: .
     environment:
       - DATABASE_URL=postgres://postgres:postgres@postgres/app_db
+      - ROCKET_DATABASES={postgres={url=postgres://postgres:postgres@postgres/app_db}}
     ports:
       - 8000:8000
     volumes:
       - ./:/app/
+    expose:
+      - 8000
