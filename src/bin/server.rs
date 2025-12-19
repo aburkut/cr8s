@@ -11,6 +11,7 @@ async fn main() {
                 cr8s::rocket_routes::options,
                 /* Auth routes */
                 cr8s::rocket_routes::authorization::login,
+                cr8s::rocket_routes::authorization::me,
                 /* Rustcean routes */
                 cr8s::rocket_routes::rustaceans::get_rustaceans,
                 cr8s::rocket_routes::rustaceans::get_rustacean,

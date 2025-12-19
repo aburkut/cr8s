@@ -1,4 +1,5 @@
 use crate::auth::{Credentials, authorize_user};
+use crate::models::User;
 use crate::repositories::UserRepository;
 use crate::rocket_routes::{CacheConn, DbConn, server_error};
 use crate::schema::users::password;
@@ -33,4 +34,9 @@ pub async fn login(
     Ok(json!({
         "token": session_id
     }))
+}
+
+#[rocket::get("/me")]
+pub fn me(user: User) -> Value {
+    json!(user)
 }
