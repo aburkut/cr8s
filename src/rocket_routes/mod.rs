@@ -1,6 +1,6 @@
 use crate::models::{RoleCode, User};
 use crate::repositories::{RoleRepository, UserRepository};
-use rocket::Request;
+use rocket::fairing::{Fairing, Info, Kind};
 use rocket::form::validate::Len;
 use rocket::http::Status;
 use rocket::outcome::try_outcome;
@@ -8,6 +8,7 @@ use rocket::request::{FromRequest, Outcome};
 use rocket::response::status::Custom;
 use rocket::serde::json::serde_json::json;
 use rocket::serde::json::{Json, Value};
+use rocket::{Request, Response};
 use rocket_db_pools::Connection;
 use rocket_db_pools::Database;
 use rocket_db_pools::deadpool_redis::redis::AsyncCommands;
@@ -29,6 +30,29 @@ pub struct CacheConn(rocket_db_pools::deadpool_redis::Pool);
 pub fn server_error(e: Box<dyn Error>) -> Custom<Value> {
     rocket::error!("{}", e);
     Custom(Status::InternalServerError, json!("Error"))
+}
+
+#[rocket::options("/<_route_args..>")]
+pub fn options(_route_args: Option<std::path::PathBuf>) {
+    // Just to add CORS header via the fairing
+}
+
+pub struct Cors;
+
+#[rocket::async_trait]
+impl Fairing for Cors {
+    fn info(&self) -> Info {
+        Info {
+            name: "Append CORS headers in responses",
+            kind: Kind::Response,
+        }
+    }
+    async fn on_response<'r>(&self, _req: &'r Request<'_>, res: &mut Response<'r>) {
+        res.set_raw_header("Access-Control-Allow-Origin", "*");
+        res.set_raw_header("Access-Control-Allow-Method", "GET, POST, PUT, DELETE");
+        res.set_raw_header("Access-Control-Allow-Header", "*");
+        res.set_raw_header("Access-Control-Allow-Credentials", "*");
+    }
 }
 
 pub fn not_found_error() -> Custom<Value> {

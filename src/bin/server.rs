@@ -1,12 +1,14 @@
 extern crate cr8s;
 
 use rocket_db_pools::Database;
+
 #[rocket::main]
 async fn main() {
     let _ = rocket::build()
         .mount(
             "/",
             rocket::routes![
+                cr8s::rocket_routes::options,
                 /* Auth routes */
                 cr8s::rocket_routes::authorization::login,
                 /* Rustcean routes */
@@ -26,6 +28,7 @@ async fn main() {
                 cr8s::rocket_routes::index::get_hello,
             ],
         )
+        .attach(cr8s::rocket_routes::Cors)
         .attach(cr8s::rocket_routes::CacheConn::init())
         .attach(cr8s::rocket_routes::DbConn::init())
         .launch()
