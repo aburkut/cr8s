@@ -1,8 +1,15 @@
 use crate::auth;
+use crate::mail::HtmlMailer;
 use crate::models::{NewUser, RoleCode};
-use crate::repositories::{RoleRepository, UserRepository};
+use crate::repositories::{CrateRepository, RoleRepository, UserRepository};
+use chrono::{Datelike, Utc};
 use diesel_async::{AsyncConnection, AsyncPgConnection};
 use std::str::FromStr;
+use tera::{Context, Tera};
+
+fn load_template_engine() -> Tera {
+    Tera::new("templates/**/*.html").expect("Cannot load templtate engine")
+}
 
 async fn load_db_connection() -> AsyncPgConnection {
     let database_url =
@@ -50,4 +57,40 @@ pub async fn list_users() {
 pub async fn delete_user(id: i32) {
     let mut c = load_db_connection().await;
     UserRepository::delete(&mut c, id).await.unwrap();
+}
+
+pub async fn digest_send(email: String, hours_since: i32) {
+    let mut c = load_db_connection().await;
+    let tera = load_template_engine();
+
+    let crates = CrateRepository::find_since(&mut c, hours_since)
+        .await
+        .unwrap();
+
+    println!("crates.len() {}", crates.len());
+    if crates.len() > 0 {
+        println!("Sending digest for {} crates", crates.len());
+        let year = Utc::now().year();
+        let mut context = Context::new();
+        context.insert("crates", &crates);
+        context.insert("year", &year);
+
+        let smtp_host = std::env::var("SMTP_HOST").expect("SMTP_HOST env variable is not set");
+        let smtp_username =
+            std::env::var("SMTP_USERNAME").expect("SMTP_USERNAME env variable is not set");
+        let smtp_password =
+            std::env::var("SMTP_PASSWORD").expect("SMTP_PASSWORD env variable is not set");
+
+        let mailer = HtmlMailer {
+            template_engine: tera,
+            smtp_host,
+            smtp_username,
+            smtp_password,
+        };
+
+        match mailer.send(email, "email/digest.html", context) {
+            Ok(_) => println!("Email sent successfully!"),
+            Err(e) => eprintln!("Could not send email: {:?}", e),
+        }
+    }
 }

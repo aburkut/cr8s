@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cr8s Daily Digest</title>
+    <style>
+        /* Только базовые стили, которые с большой вероятностью поддерживаются */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+        }
+        header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        article {
+            border-bottom: 1px solid #eee;
+            padding: 15px 0;
+            margin-bottom: 15px;
+        }
+        footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #2c3e50;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+        }
+        code {
+            background: #f8f8f8;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1 style="margin: 0; font-size: 24px;">📦 Cr8s Daily Digest</h1>
+    </header>
+
+    <section style="margin: 20px 0; padding: 15px; background: #e8f4fc; border-radius: 5px;">
+        <strong>Please find below a list of crates created in the past 24 hours.</strong>
+    </section>
+
+    <main>
+        {% for crate in crates %}
+        <article style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #eee;">
+            <h2 style="margin-top: 0; color: #2c3e50;">
+                {{ crate.name }} - <code style="background: #f0f0f0; padding: 3px 8px;">{{ crate.code }} v{{ crate.version }}</code>
+            </h2>
+            <p style="margin: 10px 0;">{{ crate.description }}</p>
+            <small style="color: #666; font-size: 12px;">📅 {{ crate.created_at }}</small>
+        </article>
+        {% else %}
+        <article style="text-align: center; padding: 30px; color: #666;">
+            <p>No new crates were created in the past 24 hours.</p>
+        </article>
+        {% endfor %}
+    </main>
+
+    <footer>
+        <p style="margin: 0;">&copy; {{ year }} Generated and sent by Cr8s Rust Application</p>
+        <p style="margin: 5px 0; font-size: 11px; color: #888;">
+            <a href="#" style="color: #3498db;">Unsubscribe</a> |
+            <a href="#" style="color: #3498db;">Email Preferences</a>
+        </p>
+    </footer>
+</div>
+</body>
+</html>
